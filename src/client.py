@@ -2,7 +2,7 @@
 import urllib.request
 import json
 
-url = 'http://localhost:8000'  # Change the URL if the server runs on a different machine or port
+url = 'http://10.0.0.131:8000'  # Change the URL if the server runs on a different machine or port
 
 data_request = {
     'name': 'Client',
