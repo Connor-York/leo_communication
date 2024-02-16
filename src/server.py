@@ -20,7 +20,7 @@ class SimpleHTTPRequestHandler(BaseHTTPRequestHandler):
         self._set_response()
 
         if data["request"]: # MESSAGE BACK THE LIST OF REWARDS AND NOT REWARDS
-            print("This is a data request")
+            print(f"Request received from {data["name"]}")
             response = {
                 'name': 'Server',
                 'reward': reward_IDs,
@@ -29,7 +29,7 @@ class SimpleHTTPRequestHandler(BaseHTTPRequestHandler):
             response = json.dumps(response).encode('utf-8')
             self.wfile.write(response)
         else:
-            print("This is an update")
+            print(f"Update received from {data["name"]}")
             for id in data["rewards"]:
                 if id not in reward_IDs:
                     reward_IDs.append(id)
@@ -40,7 +40,10 @@ class SimpleHTTPRequestHandler(BaseHTTPRequestHandler):
                     no_reward_IDs.append(id)
                 if id in reward_IDs:
                     reward_IDs.remove(id)
+            print(reward_IDs)
+            print(no_reward_IDs)
             self.wfile.write("Update received".encode('utf-8'))
+
             
 
 
