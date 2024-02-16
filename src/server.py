@@ -18,9 +18,9 @@ class SimpleHTTPRequestHandler(BaseHTTPRequestHandler):
         post_data = self.rfile.read(content_length)
         data = json.loads(post_data.decode('utf-8'))
         self._set_response()
-
+        name = data["name"]
         if data["request"]: # MESSAGE BACK THE LIST OF REWARDS AND NOT REWARDS
-            print(f"Request received from {data["name"]}")
+            print(f"Request received from { name }")
             response = {
                 'name': 'Server',
                 'reward': reward_IDs,
@@ -29,7 +29,7 @@ class SimpleHTTPRequestHandler(BaseHTTPRequestHandler):
             response = json.dumps(response).encode('utf-8')
             self.wfile.write(response)
         else:
-            print(f"Update received from {data["name"]}")
+            print(f"Update received from {name}")
             for id in data["rewards"]:
                 if id not in reward_IDs:
                     reward_IDs.append(id)

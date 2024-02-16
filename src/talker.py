@@ -11,7 +11,7 @@ def talker():
     rospy.init_node('talker', anonymous=True)
     #rate = rospy.Rate(10) # 10hz
     server_message = {
-            'name':"name",
+            'name':"test_case",
             'request':True,
             'rewards':[0,1,2,3],
             'no_rewards':[4,5,6,7]
