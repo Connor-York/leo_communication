@@ -13,8 +13,8 @@ def talker():
     server_message = {
             'name':"name",
             'request':True,
-            'rewards':[0,0,0,0],
-            'no_rewards':[0,0,0,0]
+            'rewards':[0,1,2,3],
+            'no_rewards':[4,5,6,7]
     }
     pub.publish(json.dumps(server_message))
 
