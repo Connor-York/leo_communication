@@ -12,9 +12,9 @@ def talker():
     #rate = rospy.Rate(10) # 10hz
     server_message = {
             'name':"test_case",
-            'request':True,
-            'rewards':[0,1,2,3],
-            'no_rewards':[4,5,6,7]
+            'request':False,
+            'rewards':[0,1,4,3],
+            'no_rewards':[2,5,6,7]
     }
     pub.publish(json.dumps(server_message))
 

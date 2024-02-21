@@ -31,8 +31,13 @@ def callback(data):
         data_request = data.data.encode('utf-8')
         req = urllib.request.Request(url, data=data_request, headers={'Content-Type': 'application/json'})
         with urllib.request.urlopen(req) as response:
-             print(response.read().decode('utf-8')) 
+             r = response.read().decode('utf-8')
+             print(type(r))
+             print(r)
+             #print(response.read().decode('utf-8')) 
              #RETURN RESPONSE HERE
+             pub = rospy.Publisher('/server_sub', String, queue_size=10)
+             pub.publish(r)
     else:
         #Not a request, doesn't want data returned.
         print("Update received, forwarding to server")
@@ -50,6 +55,7 @@ def callback(data):
 def message_passer():
     rospy.init_node('message_passer', anonymous=True)
     rospy.Subscriber('/server_pub', String, callback)
+    print("Client initialised")
     rospy.spin()
 
 # user_input = input("Update or Req: [u or r] ")
@@ -67,4 +73,5 @@ def message_passer():
 
 
 if __name__ == '__main__':
+    
     message_passer()
