@@ -21,12 +21,16 @@ class SimpleHTTPRequestHandler(BaseHTTPRequestHandler):
         name = data["name"]
         if data["request"]: # MESSAGE BACK THE LIST OF REWARDS AND NOT REWARDS
             print(f"Request received from { name }")
+            print("TEST PRINT ? ")
             response = {
                 'name': 'Server',
-                'reward': reward_IDs,
-                'no_reward': no_reward_IDs
+                'rewards': reward_IDs,
+                'no_rewards': no_reward_IDs
             }
+            print(str(response))
+            print("TEST PRINT ? ")
             response = json.dumps(response).encode('utf-8')
+            print(response)
             self.wfile.write(response)
         else:
             print(f"Update received from {name}")
