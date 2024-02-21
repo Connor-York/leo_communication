@@ -32,8 +32,7 @@ def callback(data):
         req = urllib.request.Request(url, data=data_request, headers={'Content-Type': 'application/json'})
         with urllib.request.urlopen(req) as response:
              r = response.read().decode('utf-8')
-             print(type(r))
-             print(r)
+             #print(r)
              #print(response.read().decode('utf-8')) 
              #RETURN RESPONSE HERE
              pub = rospy.Publisher('/server_sub', String, queue_size=10)
