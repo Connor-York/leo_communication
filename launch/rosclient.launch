@@ -1,0 +1,4 @@
+<?xml version="1.0"?>
+<launch>
+    <node pkg="leo_communication" type="rosclient.py" name="message_passer" output="screen"/>
+</launch>
