@@ -5,6 +5,7 @@ import rospy
 from std_msgs.msg import String
 
 url = 'http://10.0.0.131:8000'  # Change the URL if the server runs on a different machine or port
+server_url = 'http://10.0.0.131:8000' 
 
 data_request = {
     'name': 'Client',
