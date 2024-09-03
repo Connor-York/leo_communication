@@ -15,7 +15,8 @@ def callback(data):
 
     # Send POST request with JSON data
     response = requests.post(server_url, json=message)
-
+    pub = rospy.Publisher('/server_sub', String, queue_size=10)
+    pub.publish(response)
     # Print the response from the server
     print(f"Response from server: {response.json()}")
 
@@ -25,6 +26,7 @@ def callback(data):
 def message_passer():
     rospy.init_node('message_passer', anonymous=True)
     rospy.Subscriber('/server_pub', String, callback)
+    
     print("Client-side Initialised")
     rospy.spin()
 
