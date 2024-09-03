@@ -21,8 +21,8 @@ def receive_json():
     if data.target = None:
         respond_all(data)
     else:
-        response = requests.post(data.target, json=data)
-        print(f"Sent data to {data.target}, response status: {response.status_code}")
+        response = requests.post(clients[data.target], json=data)
+        print(f"Sent data to {clients[data.target]}, response status: {response.status_code}")
 
     # Send a response back
     response = {"message": "JSON received successfully!", "data_received": data}
