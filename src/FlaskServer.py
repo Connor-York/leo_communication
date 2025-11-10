@@ -13,7 +13,7 @@ connor = "http://192.168.1.101:5000/receive"
 mehdi = "http://192.168.1.102:5000/receive"
 jay = "http://192.168.1.103:5000/receive"
 james = "http://192.168.1.104:5000/receive"
-clients = [connor] #,mehdi,jay,james] # Make sure the robot IDs are set in the order of this list
+clients = [connor, james] #,mehdi,jay,james] # Make sure the robot IDs are set in the order of this list
 
 
 
@@ -48,4 +48,4 @@ def respond_all(data):
 
 
 if __name__ == '__main__':
-    app.run(debug=True, host=server_url_local, port=5000)
+    app.run(debug=True, host=server_url, port=5000)

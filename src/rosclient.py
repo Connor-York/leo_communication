@@ -9,13 +9,13 @@ import threading
 app = Flask(__name__)
 
 # local network
-server_url = 'http://10.0.0.131:5000/receive'
+#server_url = 'http://10.0.0.131:5000/receive'
 
 # robot_5 network
-# server_url = 'http://192.168.1.105:5000/receive'
+server_url = 'http://192.168.1.105:5000/receive'
 
-#connor = "192.168.1.101"
-connor = "10.0.0.1"
+connor = "192.168.1.101"
+#connor = "10.0.0.1"
 mehdi = "192.168.1.102"
 jay = "192.168.1.103"
 james = "192.168.1.104"
