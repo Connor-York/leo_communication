@@ -34,9 +34,7 @@ def receive_json():
     #     response = requests.post(clients[target], json=data)
     #     print(f"Sent data to {clients[target]}, response status: {response.status_code}")
 
-    # Send a response back
-    # response = {"message": "JSON received successfully!", "data_received": data}
-    # return jsonify(response)
+    return jsonify({'status': 'success'}), 200
 
 def respond_all(data):
 
