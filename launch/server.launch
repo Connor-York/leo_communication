@@ -1,0 +1,7 @@
+<launch>
+    <!-- Server Flask + ROS Node -->
+    <node pkg="leo_communication" type="ROS_Server.py" name="message_server" output="screen">
+        <!-- Can add parameters here if needed -->
+        <!-- <param name="server_url" value="10.0.0.131" /> -->
+    </node>
+</launch>
