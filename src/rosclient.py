@@ -10,14 +10,9 @@ app = Flask(__name__)
 
 # local network
 server_url = 'http://10.0.0.131:5000/receive'
-<<<<<<< HEAD
 
 # robot_5 network
 #server_url = 'http://192.168.1.100:5000/receive' #1.105 is adam?
-=======
-# robot_5 network
-#server_url = 'http://192.168.1.105:5000/receive'
->>>>>>> 6c5986c40cbf6bdbc8d1bafb187679517a3f12b3
 
 #connor = "192.168.1.101"
 connor = "10.0.0.1"
