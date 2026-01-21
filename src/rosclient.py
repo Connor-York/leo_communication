@@ -27,15 +27,17 @@ server_sub_pub = None
 def receive_json():
     global server_sub_pub
     data = request.get_json()
-    print(f"Received from server: {data}")
+    #print(f"Received from server: {data}")
     server_sub_pub.publish(json.dumps(data))
     return jsonify({"status": "success"}), 200
 
 def callback(data):
     message = json.loads(data.data)
     try:
-        response = requests.post(server_url, json=message)
-        print(f"Sent to server, status: {response.status_code}")
+        response = requests.post(server_url, json=message, timeout=0.2)
+        #print(f"Sent to server, status: {response.status_code}")
+    except requests.exceptions.Timeout:
+        pass
     except requests.exceptions.RequestException as e:
         rospy.logerr(f"Failed to send to server: {e}")
 
