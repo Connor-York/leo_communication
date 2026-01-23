@@ -8,17 +8,19 @@ import os
 import logging
 import rospy
 from geometry_msgs.msg import PointStamped
+import time
 
 app = Flask(__name__)
-#server_url_local = '10.0.0.131'
-server_url = '192.168.1.100'
+server_url = '10.0.0.131'
+#server_url = '192.168.1.100'
 
 #clients:
-connor = "http://192.168.1.101:5000/receive"
+#connor = "http://192.168.1.101:5000/receive"
+connor = "http://10.0.0.1:5000/receive"
 mehdi = "http://192.168.1.102:5000/receive"
 jay = "http://192.168.1.103:5000/receive"
 james = "http://192.168.1.104:5000/receive"
-clients = [connor,james]
+clients = [connor] #,james]
 
 # Create named pipes for communication
 # LOG_PIPE = "/tmp/server_log_pipe"
@@ -59,34 +61,38 @@ done
 @app.route('/receive', methods=['POST'])
 def receive_json():
     data = request.get_json()
-    if data['type'] == 'Ready':
+    if data['type'] == 'ready':
         rospy.loginfo(f"Client {data['source']} is ready.")
     else:
         respond_all(data)
+        rospy.loginfo(f"Received message t = {data['t_sent']} | rawdiff = {time.time()-data.get('raw_time',0.0)}")
+        #broadcast_message(data)
     return jsonify({'status': 'success'}), 200
 
-def respond_all(data):
+def respond_all(message_data):
     for count, client_url in enumerate(clients):
-        if count != int(data["source"]):
-            try:
-                response = requests.post(client_url, json=data, timeout=0.2)
-                #log_message(f"Sent data to {client_url}, response status: {response.status_code}")
-            except requests.exceptions.Timeout:
-                pass
-            except requests.exceptions.RequestException as e:
-                rospy.logwarn(f"Failed to send data to {client_url}: {e}")
-                #log_message(f"Failed to send data to {client_url}: {e}")
+        if count != int(message_data["source"]):
+            threading.Thread(target=send_message_thread, args=(client_url, message_data), daemon=True).start()
 
 def broadcast_message(message_data):
     """Send a message to all clients"""
     for client_url in clients:
-        try:
-            response = requests.post(client_url, json=message_data, timeout=0.2)
-            #log_message(f"Broadcast to {client_url}, response status: {response.status_code}")
-        except requests.exceptions.Timeout:
-            pass
-        except requests.exceptions.RequestException as e:
-            rospy.logwarn(f"Failed to broadcast to {client_url}: {e}")
+        threading.Thread(target=send_message_thread, args=(client_url, message_data), daemon=True).start()
+
+def send_message_thread(client_url, message_data):
+    """
+    Spins up a thread to send the http post
+    Short timeout, warns on failures, ignores timeouts.
+    Temporary solution for http post slowdown. 
+    Should be replaced with sockets or some other communication method.
+    """
+    try:
+        requests.post(client_url, json=message_data, timeout=0.2)
+        #rospy.loginfo(f"Broadcast to {client_url}, response status: {response.status_code}")
+    except requests.exceptions.Timeout:
+        pass
+    except requests.exceptions.RequestException as e:
+        rospy.logwarn(f"Failed to broadcast to {client_url}: {e}")
 
 def clicked_point_callback(msg):
     """Callback for /clicked_point - sends coordinates to all agents"""
@@ -158,8 +164,6 @@ if __name__ == '__main__':
     import time
     time.sleep(1)
     
-    log = logging.getLogger('werkzeug')
-    log.setLevel(logging.ERROR)  # Only show errors, not INFO requests
 
     rospy.loginfo("Server starting...")
     rospy.loginfo(f"Listening on {server_url}:5000")
