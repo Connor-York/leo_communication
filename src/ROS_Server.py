@@ -11,16 +11,16 @@ from geometry_msgs.msg import PointStamped
 import time
 
 app = Flask(__name__)
-server_url = '10.0.0.131'
-#server_url = '192.168.1.100'
+#server_url = '10.0.0.131'
+server_url = '192.168.1.100'
 
 #clients:
-#connor = "http://192.168.1.101:5000/receive"
-connor = "http://10.0.0.1:5000/receive"
+connor = "http://192.168.1.101:5000/receive"
+#connor = "http://10.0.0.1:5000/receive"
 mehdi = "http://192.168.1.102:5000/receive"
 jay = "http://192.168.1.103:5000/receive"
 james = "http://192.168.1.104:5000/receive"
-clients = [connor] #,james]
+clients = [connor, mehdi, jay, james] #,james]
 
 # Create named pipes for communication
 # LOG_PIPE = "/tmp/server_log_pipe"
@@ -65,7 +65,7 @@ def receive_json():
         rospy.loginfo(f"Client {data['source']} is ready.")
     else:
         respond_all(data)
-        rospy.loginfo(f"Received message t = {data['t_sent']} | rawdiff = {time.time()-data.get('raw_time',0.0)}")
+        #rospy.loginfo(f"Received message t = {data['t_sent']} | rawdiff = {time.time()-data.get('raw_time',0.0)}")
         #broadcast_message(data)
     return jsonify({'status': 'success'}), 200
 
@@ -77,6 +77,7 @@ def respond_all(message_data):
 def broadcast_message(message_data):
     """Send a message to all clients"""
     for client_url in clients:
+        rospy.loginfo(f"Broadcasting to {client_url}: {message_data}")
         threading.Thread(target=send_message_thread, args=(client_url, message_data), daemon=True).start()
 
 def send_message_thread(client_url, message_data):
