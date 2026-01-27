@@ -6,20 +6,19 @@ from std_msgs.msg import String
 import json
 import threading
 import time
+from concurrent.futures import ThreadPoolExecutor
 
 app = Flask(__name__)
 
-# local network
-server_url = 'http://10.0.0.131:5000/receive'
-
-# robot_5 network
-#server_url = 'http://192.168.1.100:5000/receive' #1.105 is adam?
-
-#connor = "192.168.1.101"
-connor = "10.0.0.1"
+server_url = 'http://192.168.1.100:5000/receive'
+connor = "192.168.1.101"
 mehdi = "192.168.1.102"
 jay = "192.168.1.103"
 james = "192.168.1.104"
+clients = [connor, mehdi, jay, james]
+
+executor = ThreadPoolExecutor(max_workers=4)
+robot_id = None
 
 # Global publisher
 server_sub_pub = None
@@ -28,42 +27,59 @@ server_sub_pub = None
 def receive_json():
     global server_sub_pub
     data = request.get_json()
-    #print(f"Received from server: {data}")
     rospy.loginfo(f"Received from server: t={data.get('t_sent', 'N/A')} | raw={data.get('raw_time',0.0)} | raw_diff={time.time()-data.get('raw_time',0.0)}")
     server_sub_pub.publish(json.dumps(data))
     return jsonify({"status": "success"}), 200
 
-def callback(data):
-    #send_to_server(data)
-    threading.Thread(target=send_to_server, args=(data,), daemon=True).start()
+def callback(msg):
+    global robot_id
+    data = json.loads(msg.data)
+    
+    if data['type'] == 'ready':
+        robot_id = data['source']
+        executor.submit(send_to_server, data)
+    else:
+        if data['source'] != robot_id:
+            rospy.logerr(f"Source ID mismatch! Not sending. Expected {robot_id}, got {data['source']}")
+            return
+        send_to_robots(data)
 
 def message_passer():
     global server_sub_pub
     rospy.init_node('message_passer', anonymous=True)
     server_sub_pub = rospy.Publisher('/server_sub', String, queue_size=10)
     rospy.Subscriber('/server_pub', String, callback)
-    rospy.sleep(0.5)  # Give publisher time to connect
+    rospy.sleep(0.5)
     print("Client-side Initialised")
 
 def send_to_server(data):
-    message = json.loads(data.data)
     try:
-        #rospy.loginfo(f"received from latte {message.get('t_sent', 'N/A')} | Raw: {message.get('raw_time',0.0)} | Rawdiff: {time.time()-message.get('raw_time',0.0)}")
-        requests.post(server_url, json=message, timeout=0.2)
-        #rospy.loginfo(f"Sent to server {message.get('t_sent', 'N/A')} | Rawdiff {time.time()-message.get('raw_time',0.0)} | Status Code: {response.status_code}")
+        requests.post(server_url, json=data, timeout=0.2)
     except requests.exceptions.Timeout:
         pass
     except requests.exceptions.RequestException as e:
         rospy.logerr(f"Failed to send to server: {e}")
 
+def send_request(target_url, data):
+    try:
+        requests.post(target_url, json=data, timeout=0.2)
+    except requests.exceptions.Timeout:
+        pass
+    except requests.exceptions.RequestException as e:
+        rospy.logerr(f"Failed to send to {target_url}: {e}")
+
+def send_to_robots(data):
+    global robot_id
+    for idx, target_ip in enumerate(clients):
+        if idx != robot_id:
+            target_url = f"http://{target_ip}:5000/receive"
+            executor.submit(send_request, target_url, data)
+
 if __name__ == '__main__':
     message_passer()
-    
-    # Run Flask in separate thread so ROS can spin
     flask_thread = threading.Thread(
-        target=lambda: app.run(debug=False, host=connor, port=5000, threaded=True),
+        target=lambda: app.run(debug=False, host='0.0.0.0', port=5000, threaded=True),
         daemon=True
     )
     flask_thread.start()
-    
     rospy.spin()
