@@ -27,7 +27,7 @@ server_sub_pub = None
 def receive_json():
     global server_sub_pub
     data = request.get_json()
-    rospy.loginfo(f"Received from server: t={data.get('t_sent', 'N/A')} | raw={data.get('raw_time',0.0)} | raw_diff={time.time()-data.get('raw_time',0.0)}")
+    #rospy.loginfo(f"Received from server: t={data.get('t_sent', 'N/A')} | raw={data.get('raw_time',0.0)} | raw_diff={time.time()-data.get('raw_time',0.0)}")
     server_sub_pub.publish(json.dumps(data))
     return jsonify({"status": "success"}), 200
 
@@ -37,6 +37,7 @@ def callback(msg):
     
     if data['type'] == 'ready':
         robot_id = data['source']
+        rospy.loginfo(f" == Robot ID set to {robot_id} ==")
         executor.submit(send_to_server, data)
     else:
         if data['source'] != robot_id:
